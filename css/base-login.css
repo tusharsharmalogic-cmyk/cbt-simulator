@@ -1,4 +1,4 @@
-/* Extracted from imu.html lines 282-495 */
+/* Extracted from imu.html lines 282-497 */
         * {
             margin: 0;
             padding: 0;
@@ -213,3 +213,5 @@
         .timer-in-tabs #timer {
             font-family: monospace;
             font-size: 18px;
+            color: #ffeb3b;
+        }

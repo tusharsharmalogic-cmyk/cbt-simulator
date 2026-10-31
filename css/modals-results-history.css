@@ -1,5 +1,4 @@
-/* Extracted from imu.html lines 1275-2130 */
-        }
+/* Extracted from imu.html lines 1276-2132 */
 
         /* Modal Styles */
         .modal {
@@ -855,3 +854,5 @@
         }
         
         .history-clear-btn:hover {
+            background-color: #d32f2f;
+        }
