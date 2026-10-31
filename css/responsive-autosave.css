@@ -1,0 +1,164 @@
+/* Extracted from imu.html lines 2131-2293 */
+            background-color: #d32f2f;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1100px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .right-panel {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .palette-buttons {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .config-row {
+                flex-direction: column;
+            }
+            
+            .question-actions {
+                flex-wrap: wrap;
+            }
+            
+            .image-navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .strength-weakness-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .history-subjects {
+                flex-wrap: wrap;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .palette-buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .subject-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .subject-tab {
+                flex: 1;
+                min-width: 100px;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+            
+            .login-box {
+                padding: 20px;
+            }
+        }
+
+        /* ===== AUTO-SAVE RESUME STYLES ===== */
+        #resume-banner {
+            display: none;
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 16px rgba(46,125,50,0.4);
+            animation: resumePulse 2s ease-in-out infinite;
+        }
+        @keyframes resumePulse {
+            0%,100% { box-shadow: 0 4px 16px rgba(46,125,50,0.4); }
+            50% { box-shadow: 0 6px 24px rgba(46,125,50,0.7); }
+        }
+        #resume-banner h3 { margin: 0 0 8px 0; font-size: 16px; }
+        #resume-banner .resume-info { font-size: 13px; opacity: 0.9; margin-bottom: 12px; line-height: 1.6; }
+        #resume-banner .resume-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        #resume-banner .btn-resume {
+            padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer;
+            font-weight: 700; font-size: 13px; transition: all 0.2s;
+        }
+        #resume-banner .btn-resume-yes { background: #fff; color: #1b5e20; }
+        #resume-banner .btn-resume-yes:hover { background: #f1f8e9; }
+        #resume-banner .btn-resume-no { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.4); }
+        #resume-banner .btn-resume-no:hover { background: rgba(255,255,255,0.25); }
+
+        /* Image re-select dialog */
+        #img-reselect-dialog {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); z-index: 10000;
+            justify-content: center; align-items: center;
+        }
+        #img-reselect-dialog.active { display: flex; }
+        #img-reselect-inner {
+            background: var(--panel-bg, #fff); color: var(--text-color, #333);
+            padding: 28px; border-radius: 14px; max-width: 560px; width: 92%;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+        }
+        #img-reselect-inner h3 { margin: 0 0 6px 0; color: #1a237e; font-size: 18px; }
+        #img-reselect-inner .resel-subtitle { font-size: 13px; color: #666; margin-bottom: 18px; }
+        .resel-subject-block {
+            background: #f5f7ff; border: 1px solid #c5cae9; border-radius: 10px;
+            padding: 14px; margin-bottom: 14px;
+        }
+        .resel-subject-block h4 { margin: 0 0 8px 0; font-size: 14px; }
+        .resel-subject-block .resel-names {
+            font-size: 12px; color: #555; background: #fff; border: 1px solid #ddd;
+            border-radius: 6px; padding: 7px 10px; margin-bottom: 8px;
+            max-height: 80px; overflow-y: auto; font-family: monospace; line-height: 1.6;
+        }
+        .resel-subject-block .resel-status {
+            font-size: 12px; font-weight: 700; margin-top: 6px;
+        }
+        .resel-subject-block .resel-status.ok { color: #2e7d32; }
+        .resel-subject-block .resel-status.warn { color: #e65100; }
+        .resel-subject-block .resel-status.err { color: #c62828; }
+        .resel-file-btn {
+            padding: 7px 14px; background: #3f51b5; color: white; border: none;
+            border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+            transition: background 0.2s;
+        }
+        .resel-file-btn:hover { background: #303f9f; }
+        .resel-bottom-btns { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; justify-content: flex-end; }
+        .resel-proceed-btn {
+            padding: 10px 22px; background: #2e7d32; color: white; border: none;
+            border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700;
+        }
+        .resel-proceed-btn:disabled { background: #aaa; cursor: not-allowed; }
+        .resel-cancel-btn {
+            padding: 10px 18px; background: #f44336; color: white; border: none;
+            border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700;
+        }
+
+        /* Auto-save indicator */
+        #autosave-indicator {
+            position: fixed; bottom: 14px; right: 14px; z-index: 9000;
+            background: rgba(46,125,50,0.85); color: white;
+            padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+            opacity: 0; transition: opacity 0.4s; pointer-events: none;
+        }
+        #autosave-indicator.show { opacity: 1; }

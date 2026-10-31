@@ -1,0 +1,215 @@
+/* Extracted from imu.html lines 282-495 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Dark Mode Variables */
+        :root {
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --panel-bg: #ffffff;
+            --panel-border: #e0e0e0;
+            --header-bg-1: #1a237e;
+            --header-bg-2: #283593;
+            --input-bg: #ffffff;
+            --input-border: #ddd;
+            --button-bg: #f5f5f5;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --timer-bg: #1a237e;
+        }
+        
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --panel-bg: #2d2d2d;
+            --panel-border: #404040;
+            --header-bg-1: #0d1117;
+            --header-bg-2: #161b22;
+            --input-bg: #2d2d2d;
+            --input-border: #404040;
+            --button-bg: #404040;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --timer-bg: #0d1117;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Login Screen Styles */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a237e, #283593);
+            transition: background 0.3s;
+        }
+        
+        body.dark-mode .login-screen {
+            background: linear-gradient(135deg, #0d1117, #161b22);
+        }
+
+        .login-box {
+            background-color: var(--panel-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .login-title {
+            font-size: 28px;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            text-align: center;
+            transition: color 0.3s;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s, background-color 0.3s;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3f51b5;
+            box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+        }
+        
+        body.dark-mode .input-group input,
+        body.dark-mode .input-group select {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-color: var(--input-border);
+        }
+
+        .test-config {
+            background-color: var(--panel-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid var(--panel-border);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .config-col {
+            flex: 1;
+        }
+
+        /* Header Styles - Hidden as per user request */
+        header {
+            display: none;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-left .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .user-info {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .test-info {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--panel-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .right-panel {
+            width: 320px;
+            background-color: var(--panel-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .subject-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .timer-in-tabs {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px 6px 0 0;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+        
+        .timer-in-tabs #timer {
+            font-family: monospace;
+            font-size: 18px;

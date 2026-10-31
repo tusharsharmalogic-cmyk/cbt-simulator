@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Main CBT Simulator - Multi-Question Images</title>
+    <!-- Modular CSS Files -->
+    <link rel="stylesheet" href="css/base-login.css">
+    <link rel="stylesheet" href="css/test-interface.css">
+    <link rel="stylesheet" href="css/modals-results-history.css">
+    <link rel="stylesheet" href="css/responsive-autosave.css">
+
+    <!-- MathJax Config -->
+    <script src="js/mathjax-config.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-box">
+            <button id="dark-mode-toggle-login" style="position: absolute; top: 20px; right: 20px; padding: 8px 15px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 20px; color: #333; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                🌙 Dark Mode
+            </button>
+            <h2 class="login-title">JEE Main CBT Simulator</h2>
+            
+            <!-- ===== RESUME BANNER ===== -->
+            <div id="resume-banner">
+                <h3>⏸️ Aapka ek incomplete test save hai!</h3>
+                <div class="resume-info" id="resume-banner-info">Loading...</div>
+                <div class="resume-btns">
+                    <button class="btn-resume btn-resume-yes" onclick="initiateResume()">▶️ Resume Test</button>
+                    <button class="btn-resume btn-resume-no" onclick="discardResume()">🗑️ Discard & Start New</button>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="user-name">Enter Your Name</label>
+                <input type="text" id="user-name" placeholder="Enter your name">
+            </div>
+            
+            <div class="input-group">
+                <label for="test-name">Test Name (Optional)</label>
+                <input type="text" id="test-name" placeholder="e.g., Mock Test 1, Physics Practice">
+            </div>
+            
+            <div id="custom-test-config" class="test-config" style="display: block;">
+                <div class="config-row">
+                    <div class="config-col">
+                        <label for="physics-count">Physics Questions</label>
+                        <input type="number" id="physics-count" min="0" max="100" value="10">
+                    </div>
+                    <div class="config-col">
+                        <label for="maths-count">Maths Questions</label>
+                        <input type="number" id="maths-count" min="0" max="100" value="10">
+                    </div>
+                    <div class="config-col">
+                        <label for="chemistry-count">Chemistry Questions</label>
+                        <input type="number" id="chemistry-count" min="0" max="100" value="10">
+                    </div>
+                </div>
+                
+                <!-- ===== JSON/TXT QUESTION FILE SECTION ===== -->
+                <div id="json-mode-section" style="background: linear-gradient(135deg, #e8f5e9, #f3e5f5); padding: 16px; border-radius: 10px; margin: 16px 0; border: 2px solid #66bb6a;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                        <h3 style="margin:0; color:#2e7d32;">&#128196; Load Questions from File (JSON / TXT)</h3>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:#2e7d32;">
+                            <input type="checkbox" id="json-mode-toggle" onchange="toggleJsonMode()" style="width:16px;height:16px;"> Enable Text Questions
+                        </label>
+                    </div>
+                    <p style="margin:0 0 12px 0; font-size:12px; color:#555;">Images ki jagah JSON ya TXT file se questions load karo. Teen alag files — Physics, Maths, Chemistry.</p>
+
+                    <div id="json-upload-area" style="display:none;">
+                        <!-- Physics File -->
+                        <div style="background:white; border-radius:8px; padding:12px; margin-bottom:10px; border:1px solid #a5d6a7;">
+                            <label style="font-weight:700; color:#1b5e20; font-size:13px;">&#9883;&#65039; Physics Questions File</label>
+                            <div onclick="document.getElementById('phy-json-file').click()" style="border:2px dashed #66bb6a; border-radius:8px; padding:14px; text-align:center; cursor:pointer; margin:8px 0; background:#f1f8e9;">
+                                <p style="margin:0; color:#555; font-size:13px;">&#128433;&#65039; Click to upload Physics JSON/TXT file</p>
+                            </div>
+                            <input type="file" id="phy-json-file" accept=".json,.txt" style="display:none;" onchange="loadSubjectFile('physics', this)">
+                            <small id="phy-json-info" style="color:#2e7d32; font-weight:bold; display:block;">No file loaded</small>
+                        </div>
+
+                        <!-- Maths File -->
+                        <div style="background:white; border-radius:8px; padding:12px; margin-bottom:10px; border:1px solid #ce93d8;">
+                            <label style="font-weight:700; color:#6a1b9a; font-size:13px;">&#128208; Maths Questions File</label>
+                            <div onclick="document.getElementById('maths-json-file').click()" style="border:2px dashed #ab47bc; border-radius:8px; padding:14px; text-align:center; cursor:pointer; margin:8px 0; background:#f3e5f5;">
+                                <p style="margin:0; color:#555; font-size:13px;">&#128433;&#65039; Click to upload Maths JSON/TXT file</p>
+                            </div>
+                            <input type="file" id="maths-json-file" accept=".json,.txt" style="display:none;" onchange="loadSubjectFile('maths', this)">
+                            <small id="maths-json-info" style="color:#6a1b9a; font-weight:bold; display:block;">No file loaded</small>
+                        </div>
+
+                        <!-- Chemistry File -->
+                        <div style="background:white; border-radius:8px; padding:12px; margin-bottom:10px; border:1px solid #ffcc80;">
+                            <label style="font-weight:700; color:#e65100; font-size:13px;">&#129514; Chemistry Questions File</label>
+                            <div onclick="document.getElementById('chem-json-file').click()" style="border:2px dashed #ffa726; border-radius:8px; padding:14px; text-align:center; cursor:pointer; margin:8px 0; background:#fff3e0;">
+                                <p style="margin:0; color:#555; font-size:13px;">&#128433;&#65039; Click to upload Chemistry JSON/TXT file</p>
+                            </div>
+                            <input type="file" id="chem-json-file" accept=".json,.txt" style="display:none;" onchange="loadSubjectFile('chemistry', this)">
+                            <small id="chem-json-info" style="color:#e65100; font-weight:bold; display:block;">No file loaded</small>
+                        </div>
+
+                        <!-- Format Guide -->
+                        <div style="background:#fffde7; border:1px solid #f9a825; border-radius:8px; padding:12px; margin-top:6px;">
+                            <strong style="color:#f57f17; font-size:13px;">&#128218; File Format Guide</strong>
+                            <div style="margin-top:8px; font-size:12px; color:#555; line-height:1.8;">
+                                <strong>JSON Format:</strong>
+                                <pre style="background:#f5f5f5; padding:8px; border-radius:6px; font-size:11px; overflow-x:auto; margin:4px 0;">es pdf me jitne bhi qustion h unko hindi me likj do json me is format me or math formula k liye latex formula use karna or mcq k ans agar 1,2,3,4 k form me diye  h to unhe ABCD k form me badl dena or agar kisi qustion me diagram h to use skip kar dena[
+  {
+    "q": "The value of sin(30) is?",
+    "options": ["A) 0.5", "B) 0.6", "C) 0.7", "D) 0.8"],
+    "answer": "A",
+    "type": "mcq"
+  },
+  {
+    "q": "If x^2 = 16, find x (positive):",
+    "answer": "4",
+    "type": "numeric"
+  }
+]</pre>
+                                <strong>TXT Format:</strong>
+                                <pre style="background:#f5f5f5; padding:8px; border-radius:6px; font-size:11px; overflow-x:auto; margin:4px 0;">Q1. The value of sin(30) is?
+A) 0.5
+B) 0.6
+C) 0.7
+D) 0.8
+ANS: A
+TYPE: mcq
+
+Q2. Find 3^2 + 4^2
+ANS: 25
+TYPE: numeric</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Files Selection Section -->
+                <div id="image-mode-section" style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-bottom: 15px; color: #1976d2;">📁 Select Question Images</h3>
+                    
+                    <!-- Physics Images -->
+                    <div class="config-row">
+                        <div class="config-col">
+                            <label>Physics Images (Max 100)</label>
+                            <div id="physics-drop-zone" style="border: 2px dashed #3f51b5; padding: 20px; text-align: center; border-radius: 8px; background: #f5f5f5; margin: 10px 0; cursor: pointer;">
+                                <p style="margin: 0; color: #666;">🖱️ Click to select or drag & drop images here</p>
+                                <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Select multiple files (Ctrl+A to select all in folder)</p>
+                            </div>
+                            <input type="file" id="physics-images" multiple accept="image/*" style="display: none;">
+                            <small id="physics-count-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 images selected</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Maths Images -->
+                    <div class="config-row">
+                        <div class="config-col">
+                            <label>Maths Images (Max 100)</label>
+                            <div id="maths-drop-zone" style="border: 2px dashed #3f51b5; padding: 20px; text-align: center; border-radius: 8px; background: #f5f5f5; margin: 10px 0; cursor: pointer;">
+                                <p style="margin: 0; color: #666;">🖱️ Click to select or drag & drop images here</p>
+                                <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Select multiple files (Ctrl+A to select all in folder)</p>
+                            </div>
+                            <input type="file" id="maths-images" multiple accept="image/*" style="display: none;">
+                            <small id="maths-count-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 images selected</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Chemistry Images -->
+                    <div class="config-row">
+                        <div class="config-col">
+                            <label>Chemistry Images (Max 100)</label>
+                            <div id="chemistry-drop-zone" style="border: 2px dashed #3f51b5; padding: 20px; text-align: center; border-radius: 8px; background: #f5f5f5; margin: 10px 0; cursor: pointer;">
+                                <p style="margin: 0; color: #666;">🖱️ Click to select or drag & drop images here</p>
+                                <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Select multiple files (Ctrl+A to select all in folder)</p>
+                            </div>
+                            <input type="file" id="chemistry-images" multiple accept="image/*" style="display: none;">
+                            <small id="chemistry-count-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 images selected</small>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin: 20px 0 15px 0; color: #1976d2;">🔑 Select Answer Key Images</h3>
+                    
+                    <!-- Physics Answers -->
+                    <div class="config-row">
+                        <div class="config-col">
+                            <label>Physics Answers (Max 3 images OR up to 3 txt files)</label>
+                            <div id="physics-ans-drop-zone" style="border: 2px dashed #ff9800; padding: 15px; text-align: center; border-radius: 8px; background: #fff3e0; margin: 10px 0; cursor: pointer;">
+                                <p style="margin: 0; color: #666;">🖱️ Click to select or drag & drop answer images</p>
+                            </div>
+                            <input type="file" id="physics-answers" multiple accept="image/*" style="display: none;">
+                            <small id="physics-ans-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 images selected</small>
+                            <div style="margin-top: 8px; padding: 10px; background: #e8f5e9; border: 1px dashed #4caf50; border-radius: 6px; cursor: pointer;" id="physics-txt-drop-zone">
+                                <p style="margin: 0; color: #555; font-size: 13px;">📄 Or click to select Answer .txt file(s) (Max 3, up to 100 answers each)</p>
+                                <p style="margin: 3px 0 0 0; font-size: 11px; color: #888;">Format: A A BC C BB B (spaces are ignored automatically ✓)</p>
+                            </div>
+                            <input type="file" id="physics-answers-txt" multiple accept=".txt" style="display: none;">
+                            <div id="physics-txt-ranges" style="margin-top: 6px; display: none;"></div>
+                            <small id="physics-txt-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 txt files selected</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Maths Answers -->
+                    <div class="config-row">
+                        <div class="config-col">
+                            <label>Maths Answers (Max 3 images OR up to 3 txt files)</label>
+                            <div id="maths-ans-drop-zone" style="border: 2px dashed #ff9800; padding: 15px; text-align: center; border-radius: 8px; background: #fff3e0; margin: 10px 0; cursor: pointer;">
+                                <p style="margin: 0; color: #666;">🖱️ Click to select or drag & drop answer images</p>
+                            </div>
+                            <input type="file" id="maths-answers" multiple accept="image/*" style="display: none;">
+                            <small id="maths-ans-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 images selected</small>
+                            <div style="margin-top: 8px; padding: 10px; background: #e8f5e9; border: 1px dashed #4caf50; border-radius: 6px; cursor: pointer;" id="maths-txt-drop-zone">
+                                <p style="margin: 0; color: #555; font-size: 13px;">📄 Or click to select Answer .txt file(s) (Max 3, up to 100 answers each)</p>
+                                <p style="margin: 3px 0 0 0; font-size: 11px; color: #888;">Format: A A BC C BB B (spaces are ignored automatically ✓)</p>
+                            </div>
+                            <input type="file" id="maths-answers-txt" multiple accept=".txt" style="display: none;">
+                            <div id="maths-txt-ranges" style="margin-top: 6px; display: none;"></div>
+                            <small id="maths-txt-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 txt files selected</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Chemistry Answers -->
+                    <div class="config-row">
+                        <div class="config-col">
+                            <label>Chemistry Answers (Max 3 images OR up to 3 txt files)</label>
+                            <div id="chemistry-ans-drop-zone" style="border: 2px dashed #ff9800; padding: 15px; text-align: center; border-radius: 8px; background: #fff3e0; margin: 10px 0; cursor: pointer;">
+                                <p style="margin: 0; color: #666;">🖱️ Click to select or drag & drop answer images</p>
+                            </div>
+                            <input type="file" id="chemistry-answers" multiple accept="image/*" style="display: none;">
+                            <small id="chemistry-ans-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 images selected</small>
+                            <div style="margin-top: 8px; padding: 10px; background: #e8f5e9; border: 1px dashed #4caf50; border-radius: 6px; cursor: pointer;" id="chemistry-txt-drop-zone">
+                                <p style="margin: 0; color: #555; font-size: 13px;">📄 Or click to select Answer .txt file(s) (Max 3, up to 100 answers each)</p>
+                                <p style="margin: 3px 0 0 0; font-size: 11px; color: #888;">Format: A A BC C BB B (spaces are ignored automatically ✓)</p>
+                            </div>
+                            <input type="file" id="chemistry-answers-txt" multiple accept=".txt" style="display: none;">
+                            <div id="chemistry-txt-ranges" style="margin-top: 6px; display: none;"></div>
+                            <small id="chemistry-txt-info" style="color: #666; display: block; margin-top: 5px; font-weight: bold;">0 txt files selected</small>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #c8e6c9;">
+                        <strong style="color:#1976d2;">📖 Guide — Yeh sab kya karta hai?</strong>
+                        <ul style="margin: 8px 0 0 18px; font-size: 13px; line-height: 1.8;">
+                            <li><strong>📁 Question Images (Max 100):</strong> Apne questions ki images chunein. Ek image = ek question. Drop zone pe click karein ya drag &amp; drop karein. Ctrl+A se poore folder ki saari images ek saath select kar sakte hain.</li>
+                            <li><strong>🔑 Answer Key Images:</strong> Answer key ki screenshot yahan load karein (Max 3). Submit ke baad screen pe dikhegi — dekh ke manually answers fill karein.</li>
+                            <li><strong>📄 Answer Key .txt file:</strong> Text file mein answers likhein (e.g. <code>ABCDA33B</code>). MCQ ke liye A/B/C/D, Numeric ke liye number directly likhein. Spaces automatically ignore honge. Yeh auto-fill kar deta hai submission modal mein.</li>
+                            <li><strong>🔄 Auto-Advance Image:</strong> ON karne par question change hone par image bhi automatically change hoti hai. Image nav buttons disable ho jaate hain.</li>
+                            <li><strong>🔑 Auto-Answer from Filename:</strong> ON karne par image ka naam (jaise <code>12.jpg</code>) se txt key ka 12th answer load hota hai. Agar answer nahi hai to blank rahega.</li>
+                            <li><strong>📂 Multi-Folder Mode (NEW!):</strong> Alag alag folders ki images aur unki alag ans.txt files — sab ek saath. Har folder ka apna answer key. Image number se automatic match.</li>
+                            <li><strong>⏱️ Subject-wise Timer:</strong> ON karne par Physics/Maths/Chemistry ka alag timer chalta hai. Jab ek subject ka time khatam hota hai, automatically next subject pe chale jaao. Jiska time khatam, us pe wapas nahi ja sakte.</li>
+                        </ul>
+                    </div>
+
+                    <!-- ===== FOLDER BATCH SECTION (NEW) ===== -->
+                    <div style="margin-top: 20px; background: linear-gradient(135deg, #e8eaf6, #fce4ec); padding: 18px; border-radius: 10px; border: 2px solid #7986cb;">
+                        <h3 style="margin: 0 0 8px 0; color: #1a237e;">📂 Multi-Folder Mode — Folder + Answer Key Pairs</h3>
+                        <p style="margin: 0 0 14px 0; font-size: 13px; color: #555;">
+                            Alag alag folders se images + unki ans.txt ek saath add karo. Har folder ki apni answer key hogi.<br>
+                            <strong>Kaise kaam karta hai:</strong> Image <code>12.jpg</code> → us folder ki ans.txt ka 12th answer automatically match hoga.
+                        </p>
+                        
+                        <!-- Physics Batches -->
+                        <div style="margin-bottom: 16px; background: #e3f2fd; padding: 12px; border-radius: 8px; border: 1px solid #90caf9;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                                <strong style="color:#1565c0;">⚛️ Physics Folders</strong>
+                                <button onclick="openFolderBatchDialog('physics')" style="padding:6px 14px; background:#1565c0; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600;">+ Add Folder</button>
+                            </div>
+                            <div id="physics-batch-list" style="min-height:30px;"></div>
+                            <small id="physics-batch-summary" style="color:#1565c0; font-weight:bold;">0 batches — 0 images total</small>
+                        </div>
+                        
+                        <!-- Maths Batches -->
+                        <div style="margin-bottom: 16px; background: #e8f5e9; padding: 12px; border-radius: 8px; border: 1px solid #a5d6a7;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                                <strong style="color:#2e7d32;">📐 Maths Folders</strong>
+                                <button onclick="openFolderBatchDialog('maths')" style="padding:6px 14px; background:#2e7d32; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600;">+ Add Folder</button>
+                            </div>
+                            <div id="maths-batch-list" style="min-height:30px;"></div>
+                            <small id="maths-batch-summary" style="color:#2e7d32; font-weight:bold;">0 batches — 0 images total</small>
+                        </div>
+                        
+                        <!-- Chemistry Batches -->
+                        <div style="background: #fce4ec; padding: 12px; border-radius: 8px; border: 1px solid #f48fb1;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                                <strong style="color:#880e4f;">🧪 Chemistry Folders</strong>
+                                <button onclick="openFolderBatchDialog('chemistry')" style="padding:6px 14px; background:#880e4f; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600;">+ Add Folder</button>
+                            </div>
+                            <div id="chemistry-batch-list" style="min-height:30px;"></div>
+                            <small id="chemistry-batch-summary" style="color:#880e4f; font-weight:bold;">0 batches — 0 images total</small>
+                        </div>
+                        
+                        <div style="margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.7); border-radius:6px; font-size:12px; color:#555;">
+                            💡 <strong>Kaise use karein:</strong> Har folder ke liye "+ Add Folder" dabao → images select karo → us folder ki <code>ans.txt</code> select karo → "Add Batch" dabao. Multiple folders add kar sakte ho. Test start hone par <code>1.jpg</code> → 1st answer, <code>12.jpg</code> → 12th answer automatically match hoga — koi aur toggle ON karne ki zaroorat nahi.
+                        </div>
+                    </div>
+
+                    <!-- Folder Batch Dialog (hidden, shown as overlay) -->
+                    <div id="folder-batch-dialog" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+                        <div style="background:white; padding:28px; border-radius:14px; max-width:480px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.3);">
+                            <h3 id="batch-dialog-title" style="margin:0 0 18px 0; color:#1a237e;">📂 Add Folder Batch</h3>
+                            
+                            <div style="margin-bottom:14px;">
+                                <label style="font-weight:600; display:block; margin-bottom:5px;">Folder/Batch Name (optional)</label>
+                                <input type="text" id="batch-label-input" placeholder="e.g. EMI, Optics, Chapter 5..." style="width:100%; padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                            </div>
+                            
+                            <div style="margin-bottom:14px;">
+                                <label style="font-weight:600; display:block; margin-bottom:5px;">📸 Select Images from this folder</label>
+                                <div id="batch-img-zone" onclick="document.getElementById('batch-img-input').click()" style="border:2px dashed #3f51b5; padding:16px; text-align:center; border-radius:8px; background:#f5f5f5; cursor:pointer;">
+                                    <p style="margin:0; color:#666;">🖱️ Click to select images (Ctrl+A for all)</p>
+                                </div>
+                                <input type="file" id="batch-img-input" multiple accept="image/*" style="display:none;" onchange="onBatchImagesSelected(this.files)">
+                                <small id="batch-img-info" style="color:#666; font-weight:bold; margin-top:4px; display:block;">0 images selected</small>
+                            </div>
+                            
+                            <div style="margin-bottom:18px;">
+                                <label style="font-weight:600; display:block; margin-bottom:5px;">📄 Select ans.txt for this folder</label>
+                                <div id="batch-txt-zone" onclick="document.getElementById('batch-txt-input').click()" style="border:2px dashed #4caf50; padding:14px; text-align:center; border-radius:8px; background:#e8f5e9; cursor:pointer;">
+                                    <p style="margin:0; color:#555; font-size:13px;">📄 Click to select ans.txt file</p>
+                                    <p style="margin:4px 0 0 0; font-size:11px; color:#888;">Format: ABCDA33B (ya space separated)</p>
+                                </div>
+                                <input type="file" id="batch-txt-input" accept=".txt" style="display:none;" onchange="onBatchTxtSelected(this.files)">
+                                <small id="batch-txt-info" style="color:#666; font-weight:bold; margin-top:4px; display:block;">No txt file selected</small>
+                            </div>
+                            
+                            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                                <button onclick="closeFolderBatchDialog()" style="padding:8px 18px; background:#f5f5f5; border:1px solid #ddd; border-radius:6px; cursor:pointer; font-size:14px;">Cancel</button>
+                                <button onclick="confirmAddBatch()" style="padding:8px 20px; background:#3f51b5; color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600;">✅ Add Batch</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="test-time">Test Time (minutes) — used when subject timer is OFF</label>
+                    <input type="number" id="test-time" min="1" max="300" value="180">
+                </div>
+                
+                <div class="input-group" style="background: #fff3e0; padding: 12px 16px; border-radius: 8px; border: 1px solid #ffcc80; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <label for="subject-timer-toggle" style="margin: 0; font-weight: 600; cursor: pointer; flex: 1;">
+                            ⏱️ Subject-wise Timer
+                            <div style="font-size: 12px; color: #666; font-weight: 400; margin-top: 2px;">Har subject ka alag timer. Ek ka time khatam hone par automatically next subject pe chale jao. Jo subject ka time khatam ho gaya usmein wapas nahi ja sakte.</div>
+                        </label>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0;">
+                            <input type="checkbox" id="subject-timer-toggle" style="opacity: 0; width: 0; height: 0;" onchange="toggleSubjectTimerUI()">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 28px;"></span>
+                        </label>
+                    </div>
+                    <div id="subject-timer-inputs" style="display: none;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 100px;">
+                                <label style="font-size: 13px; color: #555;">Physics (min)</label>
+                                <input type="number" id="physics-time" min="1" max="180" value="60" style="width: 100%; padding: 8px; border: 1px solid #ffb74d; border-radius: 5px; font-size: 14px;">
+                            </div>
+                            <div style="flex: 1; min-width: 100px;">
+                                <label style="font-size: 13px; color: #555;">Maths (min)</label>
+                                <input type="number" id="maths-time" min="1" max="180" value="60" style="width: 100%; padding: 8px; border: 1px solid #ffb74d; border-radius: 5px; font-size: 14px;">
+                            </div>
+                            <div style="flex: 1; min-width: 100px;">
+                                <label style="font-size: 13px; color: #555;">Chemistry (min)</label>
+                                <input type="number" id="chemistry-time" min="1" max="180" value="60" style="width: 100%; padding: 8px; border: 1px solid #ffb74d; border-radius: 5px; font-size: 14px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group" style="display: flex; align-items: center; gap: 15px; background: #f0f4ff; padding: 12px 16px; border-radius: 8px; border: 1px solid #c5cae9;">
+                    <label for="auto-advance-toggle" style="margin: 0; font-weight: 600; cursor: pointer; flex: 1;">
+                        🔄 Auto-Advance Image with Question
+                        <div style="font-size: 12px; color: #666; font-weight: 400; margin-top: 2px;">When ON: image changes automatically with question; image nav buttons disabled</div>
+                    </label>
+                    <label class="toggle-switch" style="position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0;">
+                        <input type="checkbox" id="auto-advance-toggle" style="opacity: 0; width: 0; height: 0;">
+                        <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 28px;"></span>
+                    </label>
+                </div>
+                
+                <div class="input-group" style="display: flex; align-items: center; gap: 15px; background: #e8f5e9; padding: 12px 16px; border-radius: 8px; border: 1px solid #a5d6a7; margin-top: 10px;">
+                    <label for="filename-ans-toggle" style="margin: 0; font-weight: 600; cursor: pointer; flex: 1;">
+                        🔑 Auto-Answer from Image Filename
+                        <div style="font-size: 12px; color: #555; font-weight: 400; margin-top: 2px;">When ON: Answer key se jo image ka naam ho (jaise 12.jpg) ussi number ka answer load hoga. Agar txt ans ki mein wo number nahi hai to blank rahega.</div>
+                    </label>
+                    <label class="toggle-switch" style="position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0;">
+                        <input type="checkbox" id="filename-ans-toggle" style="opacity: 0; width: 0; height: 0;">
+                        <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 28px;"></span>
+                    </label>
+                </div>
+
+                <!-- BEHAVIOUR TRACKER TOGGLE -->
+                <div class="input-group" style="display: flex; align-items: center; gap: 15px; background: #fce4ec; padding: 12px 16px; border-radius: 8px; border: 1px solid #f48fb1; margin-top: 10px;">
+                    <label for="behaviour-tracker-toggle" style="margin: 0; font-weight: 600; cursor: pointer; flex: 1;">
+                        🕵️ Behaviour Tracker
+                        <div style="font-size: 12px; color: #880e4f; font-weight: 400; margin-top: 2px;">ON karne par: test mein kab kaun sa question khola, kab option chuna/hataya, kitna time lgaya — sab kuch result mein dikhaega.</div>
+                    </label>
+                    <label class="toggle-switch" style="position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0;">
+                        <input type="checkbox" id="behaviour-tracker-toggle" style="opacity: 0; width: 0; height: 0;">
+                        <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 28px;"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="start-test-btn" style="width: 100%; padding: 15px; margin-top: 20px;">
+                Start Test
+            </button>
+            
+            <button class="btn" onclick="viewTestHistory()" style="width: 100%; padding: 15px; margin-top: 15px; background: linear-gradient(135deg, #2e7d32, #388e3c); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                📊 View Test History
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Test Interface (Initially Hidden) -->
+    <div class="container" id="test-container" style="display: none;">
+        <header>
+            <div class="header-left">
+                <h1>JEE Main CBT Simulator</h1>
+                <p class="subtitle" id="test-config-summary">Full Mock Test | 75 Questions | 180 Minutes</p>
+            </div>
+            <div class="header-right">
+                <div class="user-info">Candidate: <span id="display-user-name">Student</span></div>
+                <div class="test-info" id="test-stats">Physics: 10 | Maths: 10 | Chemistry: 10</div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Panel: Question Display -->
+            <div class="left-panel">
+                <!-- Subject Tabs -->
+                <div class="subject-tabs">
+                    <div class="subject-tab active" data-subject="physics">Physics (1-<span id="physics-max">25</span>)</div>
+                    <div class="subject-tab inactive" data-subject="maths">Mathematics (<span id="maths-start">26</span>-<span id="maths-max">50</span>)</div>
+                    <div class="subject-tab inactive" data-subject="chemistry">Chemistry (<span id="chemistry-start">51</span>-<span id="chemistry-max">75</span>)</div>
+                    
+                    <!-- Timer in tabs -->
+                    <div class="timer-in-tabs">
+                        ⏱ <span id="timer">180:00</span> min <span id="subject-timer-label" style="font-size:11px; opacity:0.8; display:none;"></span>
+                    </div>
+                </div>
+
+                <!-- Question Container -->
+                <div class="question-container">
+                    <div id="question-number">Question 1 of 75 (Physics Q1)</div>
+                    
+                    <!-- Image Navigation -->
+                    <div class="image-navigation">
+                        <button class="image-nav-btn" id="prev-image-btn">← Previous Image</button>
+                        <div id="image-counter">Image 1 of 5</div>
+                        <button class="image-nav-btn" id="next-image-btn">Next Image →</button>
+                    </div>
+                    
+                    <img id="question-image" src="" alt="Question" class="question-image">
+                </div>
+
+                <!-- Options Container (MCQ) -->
+                <div class="options-container" id="mcq-options-container">
+                    <div class="option" data-option="A"><span style="display:inline-block;background:#3f51b5;color:white;border-radius:50%;width:26px;height:26px;line-height:26px;text-align:center;margin-right:8px;font-size:13px;flex-shrink:0;">A</span>Option A</div>
+                    <div class="option" data-option="B"><span style="display:inline-block;background:#3f51b5;color:white;border-radius:50%;width:26px;height:26px;line-height:26px;text-align:center;margin-right:8px;font-size:13px;flex-shrink:0;">B</span>Option B</div>
+                    <div class="option" data-option="C"><span style="display:inline-block;background:#3f51b5;color:white;border-radius:50%;width:26px;height:26px;line-height:26px;text-align:center;margin-right:8px;font-size:13px;flex-shrink:0;">C</span>Option C</div>
+                    <div class="option" data-option="D"><span style="display:inline-block;background:#3f51b5;color:white;border-radius:50%;width:26px;height:26px;line-height:26px;text-align:center;margin-right:8px;font-size:13px;flex-shrink:0;">D</span>Option D</div>
+                </div>
+
+                <!-- Numeric Input Container (hidden by default) -->
+                <div id="numeric-options-container" style="display:none;">
+                    <div class="numeric-input-container">
+                        <div class="numeric-badge">&#128221; INTEGER TYPE &nbsp;|&nbsp; +4 / -1</div>
+                        <div class="numeric-display empty" id="numeric-display">Enter your answer</div>
+                        <div class="virtual-keypad">
+                            <div class="keypad-btn" onclick="numericInput('7')">7</div>
+                            <div class="keypad-btn" onclick="numericInput('8')">8</div>
+                            <div class="keypad-btn" onclick="numericInput('9')">9</div>
+                            <div class="keypad-btn btn-backspace" onclick="numericInput('back')">&#9003;</div>
+                            <div class="keypad-btn" onclick="numericInput('4')">4</div>
+                            <div class="keypad-btn" onclick="numericInput('5')">5</div>
+                            <div class="keypad-btn" onclick="numericInput('6')">6</div>
+                            <div class="keypad-btn btn-clear" onclick="numericInput('clear')">CLR</div>
+                            <div class="keypad-btn" onclick="numericInput('1')">1</div>
+                            <div class="keypad-btn" onclick="numericInput('2')">2</div>
+                            <div class="keypad-btn" onclick="numericInput('3')">3</div>
+                            <div class="keypad-btn" style="background:#e8f5e9;border-color:#4caf50;color:#1b5e20;" onclick="numericInput('00')">00</div>
+                            <div class="keypad-btn" style="grid-column: span 4;" onclick="numericInput('0')">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Actions -->
+                <div class="question-actions">
+                    <button class="btn btn-warning" id="mark-review-btn">Mark for Review</button>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" id="prev-btn">Previous Question</button>
+                    <button class="btn btn-primary" id="next-btn">Next Question</button>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Question Palette -->
+            <div class="right-panel">
+                <!-- Old Timer - Hidden as it's now in tabs -->
+                <div class="timer-container" style="display: none;">
+                    <div>Time Remaining</div>
+                    <div id="timer-old">03:00:00</div>
+                    <div style="font-size: 14px; margin-top: 5px;">(<span id="total-time-minutes">180</span> minutes)</div>
+                </div>
+                
+                <!-- Current Question Indicator - Hidden as per user request -->
+                <div id="current-question-badge" style="display: none;">
+                    <span class="badge-label">📍 Current: Question </span><span class="badge-short">Q </span><span id="current-q-number">1</span>
+                </div>
+
+                <!-- Palette Toggle Button -->
+                <button class="palette-toggle-btn" id="palette-toggle-btn" onclick="togglePalette()">
+                    📋 Show Question Palette
+                </button>
+
+                <!-- Question Palette -->
+                <div class="question-palette" id="question-palette">
+                    <div class="palette-title">Question Palette</div>
+                    
+                    <div class="palette-subject">
+                        <span class="subject-label">Physics (1-<span id="palette-physics-max">25</span>)</span>
+                        <div class="palette-buttons" id="physics-palette">
+                            <!-- Physics buttons will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="palette-subject">
+                        <span class="subject-label">Mathematics (<span id="palette-maths-start">26</span>-<span id="palette-maths-max">50</span>)</span>
+                        <div class="palette-buttons" id="maths-palette">
+                            <!-- Maths buttons will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="palette-subject">
+                        <span class="subject-label">Chemistry (<span id="palette-chemistry-start">51</span>-<span id="palette-chemistry-max">75</span>)</span>
+                        <div class="palette-buttons" id="chemistry-palette">
+                            <!-- Chemistry buttons will be generated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="instructions">
+                    <!-- Test Information moved from header -->
+                    <div style="background: linear-gradient(135deg, #1a237e, #283593); color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; position: relative;">
+                        <button id="dark-mode-toggle" style="position: absolute; top: 10px; right: 10px; padding: 8px 15px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; color: white; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                            🌙 Dark Mode
+                        </button>
+                        <h3 style="margin: 0 0 8px 0; font-size: 20px;">JEE Main CBT Simulator</h3>
+                        <p style="margin: 0 0 5px 0; font-size: 14px; opacity: 0.9;" id="test-config-summary-instructions">Full Mock Test | 75 Questions | 180 Minutes</p>
+                        <p style="margin: 0 0 5px 0; font-size: 14px;">Candidate: <span id="display-user-name-instructions">Student</span></p>
+                        <p style="margin: 0; font-size: 13px; opacity: 0.8;" id="test-stats-instructions">Physics: 10 | Maths: 10 | Chemistry: 10</p>
+                    </div>
+                    
+                    <h3 style="display: none;">Instructions:</h3>
+                    <ul style="display: none;">
+                        <li><strong>Image Navigation:</strong> Use Previous/Next Image buttons</li>
+                        <li><strong>Select Question:</strong> Click on question number above image</li>
+                        <li><strong>Mark for Review:</strong> Click button to mark question for later review</li>
+                        <li><strong>Scoring:</strong> +4 for correct, -1 for incorrect, 0 for unattempted</li>
+                        <li><strong>Answer Input:</strong> Enter answers without spaces (e.g., ABCDA)</li>
+                        <li>All data is stored locally in your browser</li>
+                    </ul>
+                </div>
+
+                <!-- Submit Section (Moved here for safety) -->
+                <div style="margin-top: 20px; background: #fff3f3; border: 1px solid #ffcdd2; border-radius: 10px; padding: 15px;">
+                    <div style="font-size: 13px; color: #c62828; font-weight: 600; margin-bottom: 10px; text-align: center;">
+                        ⚠️ Submit Test
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: #555; margin-bottom: 12px; user-select: none;">
+                        <input type="checkbox" id="submit-confirm-check" onchange="toggleSubmitBtn()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #f44336;">
+                        I want to submit the test
+                    </label>
+                    <button class="btn btn-danger" id="submit-btn" disabled
+                        style="width: 100%; padding: 12px; font-size: 15px; font-weight: 700; opacity: 0.4; cursor: not-allowed; transition: opacity 0.3s;">
+                        🏁 Submit Test
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submission Modal -->
+    <div class="modal" id="submission-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Test Submission</h2>
+            <p>Your test has been submitted. Please enter the correct answers for each subject.</p>
+            <p class="highlight">MCQ: Enter A/B/C/D without spaces &nbsp;|&nbsp; Numeric: Enter the number for each integer question</p>
+            
+            <!-- Physics Answer Key -->
+            <div class="answer-key-section">
+                <h4>Physics Answer Key (<span id="physics-key-count">0</span> questions):</h4>
+                <div class="answer-key-images" id="physics-answer-images"></div>
+                <div class="answer-input-container">
+                    <h5>Enter Physics MCQ Answers (<span id="physics-mcq-key-count">0</span> MCQ questions):</h5>
+                    <input type="text" class="answer-input-box" id="physics-answers-input" 
+                           maxlength="25" placeholder="ABCDABCD...">
+                    <div class="answer-input-info">
+                        <span id="physics-answers-length">0</span>/<span id="physics-mcq-key-count2">0</span> characters entered
+                        <span class="highlight"> (No spaces, only A/B/C/D)</span>
+                    </div>
+                </div>
+                <!-- Numeric answers for physics -->
+                <div class="answer-input-container" id="physics-numeric-section" style="display:none; margin-top:10px; border-color:#e91e63;">
+                    <h5 style="color:#e91e63;">Enter Physics Numeric Answers:</h5>
+                    <div class="numeric-answer-inputs" id="physics-numeric-inputs"></div>
+                </div>
+            </div>
+            
+            <!-- Maths Answer Key -->
+            <div class="answer-key-section">
+                <h4>Mathematics Answer Key (<span id="maths-key-count">0</span> questions):</h4>
+                <div class="answer-key-images" id="maths-answer-images"></div>
+                <div class="answer-input-container">
+                    <h5>Enter Mathematics MCQ Answers (<span id="maths-mcq-key-count">0</span> MCQ questions):</h5>
+                    <input type="text" class="answer-input-box" id="maths-answers-input" 
+                           maxlength="25" placeholder="ABCDABCD...">
+                    <div class="answer-input-info">
+                        <span id="maths-answers-length">0</span>/<span id="maths-mcq-key-count2">0</span> characters entered
+                        <span class="highlight"> (No spaces, only A/B/C/D)</span>
+                    </div>
+                </div>
+                <!-- Numeric answers for maths -->
+                <div class="answer-input-container" id="maths-numeric-section" style="display:none; margin-top:10px; border-color:#e91e63;">
+                    <h5 style="color:#e91e63;">Enter Mathematics Numeric Answers:</h5>
+                    <div class="numeric-answer-inputs" id="maths-numeric-inputs"></div>
+                </div>
+            </div>
+            
+            <!-- Chemistry Answer Key -->
+            <div class="answer-key-section">
+                <h4>Chemistry Answer Key (<span id="chemistry-key-count">0</span> questions):</h4>
+                <div class="answer-key-images" id="chemistry-answer-images"></div>
+                <div class="answer-input-container">
+                    <h5>Enter Chemistry MCQ Answers (<span id="chemistry-mcq-key-count">0</span> MCQ questions):</h5>
+                    <input type="text" class="answer-input-box" id="chemistry-answers-input" 
+                           maxlength="25" placeholder="ABCDABCD...">
+                    <div class="answer-input-info">
+                        <span id="chemistry-answers-length">0</span>/<span id="chemistry-mcq-key-count2">0</span> characters entered
+                        <span class="highlight"> (No spaces, only A/B/C/D)</span>
+                    </div>
+                </div>
+                <!-- Numeric answers for chemistry -->
+                <div class="answer-input-container" id="chemistry-numeric-section" style="display:none; margin-top:10px; border-color:#e91e63;">
+                    <h5 style="color:#e91e63;">Enter Chemistry Numeric Answers:</h5>
+                    <div class="numeric-answer-inputs" id="chemistry-numeric-inputs"></div>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <button class="btn btn-secondary" id="cancel-submit-btn">Cancel</button>
+                <button class="btn btn-primary" id="calculate-results-btn">Calculate Results</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal" id="results-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Test Results</h2>
+            <p>Candidate: <strong id="results-user-name">Student</strong> | Test: <strong id="results-test-name">Test</strong></p>
+            
+            <!-- Overall Stats -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="total-score">0</div>
+                    <div class="stat-label">Total Score</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-correct">0</div>
+                    <div class="stat-label">Correct Answers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-incorrect">0</div>
+                    <div class="stat-label">Incorrect Answers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-unattempted">0</div>
+                    <div class="stat-label">Unattempted</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-marked">0</div>
+                    <div class="stat-label">Marked for Review</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="time-taken">00:00</div>
+                    <div class="stat-label">Time Taken</div>
+                </div>
+            </div>
+
+            <!-- Subject-wise Stats -->
+            <h3 style="margin: 25px 0 15px 0; color: #1a237e;">Subject-wise Performance</h3>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Questions</th>
+                        <th>Score</th>
+                        <th>Correct</th>
+                        <th>Incorrect</th>
+                        <th>Marked</th>
+                        <th>Accuracy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Physics</td>
+                        <td id="physics-total">0</td>
+                        <td id="physics-score">0</td>
+                        <td id="physics-correct">0</td>
+                        <td id="physics-incorrect">0</td>
+                        <td id="physics-marked">0</td>
+                        <td id="physics-accuracy">0%</td>
+                    </tr>
+                    <tr>
+                        <td>Mathematics</td>
+                        <td id="maths-total">0</td>
+                        <td id="maths-score">0</td>
+                        <td id="maths-correct">0</td>
+                        <td id="maths-incorrect">0</td>
+                        <td id="maths-marked">0</td>
+                        <td id="maths-accuracy">0%</td>
+                    </tr>
+                    <tr>
+                        <td>Chemistry</td>
+                        <td id="chemistry-total">0</td>
+                        <td id="chemistry-score">0</td>
+                        <td id="chemistry-correct">0</td>
+                        <td id="chemistry-incorrect">0</td>
+                        <td id="chemistry-marked">0</td>
+                        <td id="chemistry-accuracy">0%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Time Spent Analysis -->
+            <h3 style="margin: 25px 0 15px 0; color: #1a237e;">Time Spent Analysis</h3>
+            <div style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                <table class="result-table time-spent-table">
+                    <thead>
+                        <tr>
+                            <th>Q.No</th>
+                            <th>Subject</th>
+                            <th>Time Spent</th>
+                            <th>Time Distribution</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="time-spent-results">
+                        <!-- Time spent data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BEHAVIOUR TRACKER TABLE (shown only when toggle was ON) -->
+            <div id="behaviour-tracker-section" style="display:none; margin-bottom: 20px;">
+                <h3 style="margin: 25px 0 8px 0; color: #880e4f;">🕵️ Behaviour Tracker — Test Journey</h3>
+                <p style="font-size:12px; color:#888; margin-bottom:10px;">Yahan pura record hai: kab kahan gaye, kya kiya, kitna time lagaya.</p>
+                <div style="max-height: 420px; overflow-y: auto; border-radius: 8px; border: 1.5px solid #f48fb1;">
+                    <table class="result-table" style="margin-bottom:0;">
+                        <thead style="position:sticky; top:0; z-index:2;">
+                            <tr style="background:#880e4f; color:white;">
+                                <th style="background:#880e4f; color:white;">#</th>
+                                <th style="background:#880e4f; color:white;">Event</th>
+                                <th style="background:#880e4f; color:white;">Kahan Se</th>
+                                <th style="background:#880e4f; color:white;">Kahan Gaye</th>
+                                <th style="background:#880e4f; color:white;">Direction</th>
+                                <th style="background:#880e4f; color:white;">Q Pe Time</th>
+                                <th style="background:#880e4f; color:white;">Test Time</th>
+                                <th style="background:#880e4f; color:white;">Action / Answer</th>
+                            </tr>
+                        </thead>
+                        <tbody id="behaviour-log-results">
+                        </tbody>
+                    </table>
+                </div>
+                <p id="behaviour-summary-text" style="font-size:12px; color:#555; margin-top:8px; font-style:italic;"></p>
+            </div>
+
+            <!-- Detailed Results -->
+            <h3 style="margin: 25px 0 15px 0; color: #1a237e;">Detailed Question-wise Analysis</h3>
+            <div style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Q.No</th>
+                            <th>Image</th>
+                            <th>Your Answer</th>
+                            <th>Correct Answer</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                            <th>Marked</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailed-results">
+                        <!-- Detailed results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- LIVE RESULT ANALYSIS GRAPHS -->
+            <h3 style="margin: 25px 0 10px 0; color: #1a237e;">📊 Test Analysis</h3>
+
+            <!-- Quick stat pills -->
+            <div id="result-stat-pills" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
+
+            <!-- Tab row for result graphs -->
+            <div class="graph-tabs" id="result-graph-tabs" style="margin-bottom:10px;">
+                <button class="gtab active" onclick="switchResultTab('timeline', event)">📈 Score Timeline</button>
+                <button class="gtab" onclick="switchResultTab('subjects', event)">🔬 Subject Breakdown</button>
+                <button class="gtab" onclick="switchResultTab('time', event)">⏱️ Time Analysis</button>
+            </div>
+
+            <!-- Graph canvas -->
+            <div style="position:relative; background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:10px; padding:14px 14px 8px;">
+                <canvas id="result-graph-canvas" style="width:100%; height:300px; display:block; cursor:crosshair;"></canvas>
+                <div id="result-graph-tooltip" class="graph-tooltip" style="display:none;"></div>
+            </div>
+
+            <!-- Graph legend -->
+            <div id="result-graph-legend" class="combined-legend" style="margin-top:10px;"></div>
+
+            <div style="text-align: center; margin-top: 20px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+                <button class="btn" onclick="(async()=>{try{await pickAndSaveMathJax();}catch(e){if(e.message!=='cancelled')alert('❌ '+e.message);}})()" style="background:linear-gradient(135deg,#6a1b9a,#4a148c);color:white;font-size:14px;" title="Offline MathJax ke liye tex-svg.js choose karo — ek baar karo, hamesha kaam karega">
+                    📂 Load MathJax File
+                </button>
+                
+                <button class="btn btn-primary" id="close-results-btn">Close</button>
+                <button class="btn btn-success" id="new-test-btn">Start New Test</button>
+                <button class="btn" id="download-pdf-btn" onclick="downloadAnalysisPDF()" style="background:linear-gradient(135deg,#e53935,#b71c1c);color:white;display:flex;align-items:center;gap:6px;font-size:15px;">
+                    📥 Download PDF Report
+                </button>
+                <button class="btn" id="download-docx-btn" onclick="downloadAnalysisDOCX()" style="background:linear-gradient(135deg,#1565c0,#0d47a1);color:white;display:flex;align-items:center;gap:6px;font-size:15px;">
+                    📄 Download Word (.docx)
+                </button>
+                <button class="btn" onclick="(async()=>{try{await pickAndSaveJsPDF();alert('✅ jsPDF save ho gaya IndexedDB mein! Ab PDF download karo.');}catch(e){if(e.message!=='cancelled')alert('❌ '+e.message);}})()" style="background:linear-gradient(135deg,#6a1b9a,#4a148c);color:white;font-size:14px;" title="Offline PDF ke liye jspdf.umd.min.js choose karo — ek baar karo, hamesha kaam karega">
+                    📂 Load jsPDF File
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test History Modal -->
+    <div class="modal" id="history-modal">
+        <div class="modal-content">
+           <div class="history-header">
+    <h2 class="modal-title">📚 Test History</h2>
+    <div style="display: flex; gap: 8px; flex-wrap:wrap;">
+        <button class="btn btn-success" onclick="exportHistory()" style="padding: 8px 15px;">⬇️ Export</button>
+        <button class="btn btn-info" onclick="importHistory()" style="padding: 8px 15px;">⬆️ Import</button>
+        <button class="btn" onclick="downloadAllHistoryPDF()" style="padding:8px 15px;background:linear-gradient(135deg,#e53935,#b71c1c);color:white;font-weight:600;border:none;border-radius:6px;cursor:pointer;" id="history-pdf-btn">📥 History PDF</button>
+        <button class="history-clear-btn" id="clear-history-btn">Clear All History</button>
+    </div>
+</div>
+
+            <!-- Analytics Graphs Section — Combined Upgraded -->
+            <div class="trend-section" id="trend-section" style="display:none;">
+                <h4 style="text-align:center; margin-bottom:4px; font-size:16px; color:#3f51b5;">📊 Performance Analytics (Last 10 Tests)</h4>
+                <p style="text-align:center; font-size:11px; color:#888; margin-bottom:10px;">Hover/touch karo kisi bhi point pe details dekhne ke liye • ⭐ = Best Test</p>
+
+                <!-- Tab buttons for subject breakdown -->
+                <div class="graph-tabs" id="graph-tabs">
+                    <button class="gtab active" onclick="switchGraphTab('overall')">🏆 Overall</button>
+                    <button class="gtab" onclick="switchGraphTab('physics')">⚡ Physics</button>
+                    <button class="gtab" onclick="switchGraphTab('maths')">📐 Maths</button>
+                    <button class="gtab" onclick="switchGraphTab('chemistry')">🧪 Chemistry</button>
+                </div>
+
+                <!-- Canvas wrapper for positioning tooltip -->
+                <div class="analytics-graph-block" style="position:relative; padding-bottom:8px;">
+                    <canvas id="graph-combined" class="analytics-canvas" style="height:400px; cursor:crosshair;"></canvas>
+                    <div style="text-align:right; font-size:10px; color:#aaa; margin-top:4px;">Test →</div>
+                    <!-- Tooltip -->
+                    <div id="graph-tooltip" class="graph-tooltip" style="display:none;"></div>
+                </div>
+
+                <!-- Legend -->
+                <div class="combined-legend" id="combined-legend">
+                    <div class="cleg-item"><span class="cleg-dot" style="background:#3f51b5;"></span> Score % <span class="cleg-badge" id="badge-score"></span></div>
+                    <div class="cleg-item"><span class="cleg-dot" style="background:#ff9800;"></span> Attempt % <span class="cleg-badge" id="badge-attempt"></span></div>
+                    <div class="cleg-item"><span class="cleg-dot" style="background:#4caf50;"></span> Accuracy % <span class="cleg-badge" id="badge-accuracy"></span></div>
+                    <div class="cleg-item"><span class="cleg-dot" style="background:#e91e63;"></span> Speed (1/avgT) <span class="cleg-badge" id="badge-time"></span></div>
+                </div>
+            </div>
+
+            <!-- Image-wise Wrong Questions Tracker -->
+            <div class="wrong-images-section" id="wrong-images-section" style="display:none;">
+                <h4>🔴 Images Frequently Answered Wrong (All Tests)</h4>
+                <div style="display:flex; gap:18px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:180px;">
+                        <div style="font-size:12px;color:#3f51b5;font-weight:600;margin-bottom:6px;">Physics</div>
+                        <div class="wrong-img-list" id="wrong-physics-imgs"></div>
+                    </div>
+                    <div style="flex:1; min-width:180px;">
+                        <div style="font-size:12px;color:#4caf50;font-weight:600;margin-bottom:6px;">Maths</div>
+                        <div class="wrong-img-list" id="wrong-maths-imgs"></div>
+                    </div>
+                    <div style="flex:1; min-width:180px;">
+                        <div style="font-size:12px;color:#e91e63;font-weight:600;margin-bottom:6px;">Chemistry</div>
+                        <div class="wrong-img-list" id="wrong-chemistry-imgs"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="history-list" class="history-list">
+                <!-- History items will be populated here -->
+            </div>
+            <div style="text-align: center;">
+                <button class="btn btn-secondary" id="close-history-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div class="modal" id="comparison-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">🆚 Test Comparison</h2>
+            <div id="comparison-content" class="comparison-grid">
+                <!-- Comparison will be populated here -->
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-secondary" id="close-comparison-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Screen (After Results) -->
+    <div class="container" id="final-screen" style="display: none;">
+        <div class="final-screen">
+            <div class="final-icon">✅</div>
+            <h2 class="final-title">Test Completed Successfully!</h2>
+            <p class="final-message">Thank you for taking the JEE Main CBT Simulator test.</p>
+            <p class="final-message">Your detailed results have been saved and can be viewed again.</p>
+            <div style="margin-top: 30px;">
+                <button class="btn btn-primary" id="view-results-btn" style="margin-right: 10px;">View Results Again</button>
+                <button class="btn btn-info" id="view-history-btn" style="margin-right: 10px;">📋 Test History</button>
+                <button class="btn btn-success" id="final-new-test-btn">Start New Test</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Fullscreen Image Overlay -->
+    <div id="img-fullscreen-overlay" onclick="closeFullscreen()">
+        <span id="img-fullscreen-close" onclick="closeFullscreen()">✕</span>
+        <img id="img-fullscreen-img" src="" alt="Question Fullscreen" onclick="event.stopPropagation()">
+        <div id="img-fullscreen-hint">Tap anywhere to close • Esc bhi kaam karega</div>
+    </div>
+
+    <!-- Auto-save indicator -->
+    <div id="autosave-indicator">💾 Saved</div>
+
+    <!-- Image Re-select Dialog (for resume) -->
+    <div id="img-reselect-dialog">
+        <div id="img-reselect-inner">
+            <h3>📂 Images Re-Select Karo</h3>
+            <p class="resel-subtitle">Test resume karne ke liye pehle images select karo. Sirf wahi images load hongi jinke names save hain — order bhi same rahega.</p>
+            <div id="resel-subjects-container"></div>
+            <div class="resel-bottom-btns">
+                <button class="resel-cancel-btn" onclick="cancelResume()">❌ Cancel</button>
+                <button class="resel-proceed-btn" id="resel-proceed-btn" onclick="proceedWithResume()" disabled>▶️ Resume Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular JS Files -->
+    <script src="js/state.js"></script>
+    <script src="js/init-theme.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/graphs.js"></script>
+    <script src="js/json-questions.js"></script>
+    <script src="js/folder-batch.js"></script>
+    <script src="js/setup-uploads.js"></script>
+    <script src="js/navigation-Engine.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/results.js"></script>
+    <script src="js/autosave-resume.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/export-reports.js"></script>
+</body>
+</html>
